@@ -38,3 +38,4 @@ if __name__ == "__main__":
     print(get_address(language="zh-CN", key=api_key, latlng="30.6516472,103.9774526")["results"][0])
     print(get_location(language="zh-CN", key=api_key, address="中国四川省成都市金牛区二环路北三段")["results"][0])
     print(get_address(language="zh-CN", key=api_key, latlng="30.6943841,104.0813993")["results"][0])
+    # (30.488286, 30.6943841), (103.9774526, 104.2271417)
