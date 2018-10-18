@@ -1,8 +1,9 @@
+import sys
 from streetview import download
 
-root = ""
-api_key = ""
-signature = ""
+root = "images"
+api_key = "AIzaSyACXZbBQQRqKxQ7o6MHQR9PGH8iPqDsjkg"
+signature = sys.argv[1]
 
 locations = []
 for lat in range(1, 2, 0.004492):
