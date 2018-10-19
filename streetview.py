@@ -30,17 +30,19 @@ def sign_url(url, secret=None):
     decoded_key = base64.urlsafe_b64decode(secret)
     # Create a signature using the private key and the URL-encoded
     # string using HMAC SHA1. This signature will be binary.
-    signature = hmac.new(decoded_key, url_to_sign, hashlib.sha1)
+    signature = hmac.new(decoded_key, url_to_sign.encode("utf8"), hashlib.sha1)
     # Encode the binary signature into base64 for use within a URL
     encoded_signature = base64.urlsafe_b64encode(signature.digest())
     original_url = url.scheme + "://" + url.netloc + url.path + "?" + url.query
     # Return signed URL
-    return original_url + "&signature=" + encoded_signature
+    return original_url + "&signature=" + encoded_signature.decode("utf8")
 
 
 def save_logs(logs, log_file):
-    with codecs.open(log_file, "w", "utf-8") as writer:
+    with codecs.open(log_file, "a", "utf-8") as writer:
+        writer.write(time.strftime("#%Y-%m-%d %H:%M:%S\n"))
         writer.write("\n".join(logs))
+        writer.write("\n")
     return log_file, len(logs)
 
 
@@ -55,39 +57,35 @@ def request_imagery(root, secret, **kwargs):
     parameters = urlencode(kwargs)
     url = sign_url("https://maps.googleapis.com/maps/api/streetview?" + parameters, secret)
     res = urlretrieve(url, "{}/{},{}".format(root, kwargs["location"], time.strftime("%m%d%H%M%S.jpg")))
-    return res[0]
+    return os.path.abspath(res[0])
 
 
 def download(root, locations, api_key, secret, **kwargs):
     """
-    size: "600x400"
-    fov: "90"
-    pitch: "0"
-    radius: "50"
-    heading: "0"
+    size: "600x400", fov: "90", pitch: "0", radius: "50", heading: "0"
     """
     logs = []
+    total = len(locations)
     os.makedirs(root, exist_ok=True)
-    try:
-        total = len(locations)
-        for location in locations:
-            res = request_metadata(key=api_key, secret=secret, location=location)
-            if res["status"] == "OK":
-                name = request_imagery(root, key=api_key, secret=secret, location=location, **kwargs)
-                logs.append(":[{}],{}".format(name, json.dumps(res)))
-            else:
-                logs.append("![{}],{}".format(location, json.dumps(res)))
-            pos = len(logs)
-            if pos % 1000 == 0:
-                print(">> download {:06d}, of {:.2f}%".format(pos, pos / total))
-    except Exception as err:
-        logs.append("?[{}]".format(str(err)))
-    return save_logs(logs, "{}/logs{}".format(root, time.strftime("%m%d%H%M%S")))
+    for location in locations:
+        res = request_metadata(key=api_key, secret=secret, **kwargs)
+        if res["status"] == "OK":
+            try:
+                kwargs["location"] = "{:.6f},{:.6f}".format(res["location"]["lat"], res["location"]["lng"])
+                res["image_path"] = request_imagery(root, key=api_key, secret=secret, **kwargs)
+                logs.append(":[{}]{}".format(location, json.dumps(res)))
+            except Exception as err:
+                logs.append("![{}]{}".format(location, json.dumps(res) + "###" + str(err)))
+        else:
+            logs.append("?[{}]{}".format(location, json.dumps(res)))
+        pos = len(logs)
+        if pos % 1000 == 0:
+            print(">> download {:06d}, of {:.2f}%".format(pos, pos / total))
+    return save_logs(logs, "{}/0000".format(root))
 
 
 if __name__ == "__main__":
-    locations = ["{:.6f},{:.6f}".format(30.6457077, 104.2271417)]
-    api_key = "AIzaSyACXZbBQQRqKxQ7o6MHQR9PGH8iPqDsjkg"
-    secret = None
+    locations = ["{:.6f},{:.6f}".format(30.6617806, 104.0661523)]
+    api_key = "AIzaSyCw5exiqqFXVSQoNEdf4M43Jr0LlLcL4zY"
+    secret = "Hkk3M1Z8gyEQ17YPwi5iit-ZHI0="
     print(download("images", locations, api_key, secret, size="600x400", heading="0"))
-    print(download("images", locations, api_key, secret, size="600x400", heading="90"))
