@@ -11,4 +11,4 @@ root = "images"
 api_key = "AIzaSyCw5exiqqFXVSQoNEdf4M43Jr0LlLcL4zY"
 secret = sys.argv[1] if len(sys.argv) == 2 else "Hkk3M1Z8gyEQ17YPwi5iit-ZHI0="
 for i in [0, 90, 180, 270]:
-    download("{}_{}".format(root, i), locations, api_key, secret, size="600x400", heading=str(i))
+    download("{}_{}".format(root, i), locations, api_key, secret, size="600x400", radius="50", heading=str(i))

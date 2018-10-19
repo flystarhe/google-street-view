@@ -68,6 +68,7 @@ def download(root, locations, api_key, secret, **kwargs):
     total = len(locations)
     os.makedirs(root, exist_ok=True)
     for location in locations:
+        kwargs["location"] = location
         res = request_metadata(key=api_key, secret=secret, **kwargs)
         if res["status"] == "OK":
             try:
@@ -85,7 +86,7 @@ def download(root, locations, api_key, secret, **kwargs):
 
 
 if __name__ == "__main__":
-    locations = ["{:.6f},{:.6f}".format(30.6617806, 104.0661523)]
+    locations = ["{:.6f},{:.6f}".format(30.65705495000037, 104.0656650066376)]
     api_key = "AIzaSyCw5exiqqFXVSQoNEdf4M43Jr0LlLcL4zY"
     secret = "Hkk3M1Z8gyEQ17YPwi5iit-ZHI0="
-    print(download("images", locations, api_key, secret, size="600x400", heading="0"))
+    print(download("images", locations, api_key, secret, size="600x400", radius="500", heading="0"))
