@@ -40,10 +40,13 @@ def sign_url(url, secret=None):
 
 def save_logs(logs, log_file):
     with codecs.open(log_file, "a", "utf-8") as writer:
-        writer.write(time.strftime("#%Y-%m-%d %H:%M:%S\n"))
+        counta = len([True for i in logs if i.startswith(":[")])
+        countb = len([True for i in logs if i.startswith("![")])
+        countc = len([True for i in logs if i.startswith("?[")])
+        writer.write(time.strftime("#%Y-%m-%d %H:%M:%S [{}/{}/{}]\n".format(counta, countb, countc)))
         writer.write("\n".join(logs))
         writer.write("\n")
-    return log_file, len(logs)
+    return log_file
 
 
 def request_metadata(secret, **kwargs):
@@ -76,7 +79,7 @@ def download(root, locations, api_key, secret, **kwargs):
                 res["image_path"] = request_imagery(root, key=api_key, secret=secret, **kwargs)
                 logs.append(":[{}]{}".format(location, json.dumps(res)))
             except Exception as err:
-                logs.append("![{}]{}".format(location, json.dumps(res) + "###" + str(err)))
+                logs.append("![{}]{}".format(location, str(err)))
         else:
             logs.append("?[{}]{}".format(location, json.dumps(res)))
         pos = len(logs)
@@ -85,8 +88,30 @@ def download(root, locations, api_key, secret, **kwargs):
     return save_logs(logs, "{}/0000".format(root))
 
 
+def download2(root, locations, api_key, secret, **kwargs):
+    """
+    size: "600x400", fov: "90", pitch: "0", radius: "50", heading: "0"
+    """
+    logs = []
+    total = len(locations)
+    os.makedirs(root, exist_ok=True)
+    for location in locations:
+        try:
+            kwargs["location"] = location
+            res = request_metadata(key=api_key, secret=secret, **kwargs)
+            res["image_path"] = request_imagery(root, key=api_key, secret=secret, **kwargs)
+            logs.append(":[{}]{}".format(location, json.dumps(res)))
+        except Exception as err:
+            logs.append("![{}]{}".format(location, str(err)))
+        pos = len(logs)
+        if pos % 1000 == 0:
+            print(">> download {:06d}, of {:.2f}%".format(pos, pos / total))
+    return save_logs(logs, "{}/0000".format(root))
+
+
 if __name__ == "__main__":
-    locations = ["{:.6f},{:.6f}".format(30.65705495000037, 104.0656650066376)]
+    import sys
+    locations = [sys.argv[1] if len(sys.argv) == 2 else "30.657054,104.065665"]
     api_key = "AIzaSyCw5exiqqFXVSQoNEdf4M43Jr0LlLcL4zY"
     secret = "Hkk3M1Z8gyEQ17YPwi5iit-ZHI0="
     print(download("images", locations, api_key, secret, size="600x400", radius="500", heading="0"))
