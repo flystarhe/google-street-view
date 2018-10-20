@@ -1,9 +1,9 @@
 import sys
 import json
 import codecs
-from streetview import download as download
+from streetview import download2 as download
 
-log_file = "?"
+log_file = "google-street-view/logs.locations"
 with codecs.open(log_file, "r", "utf-8") as readers:
     logs = [line for line in readers.readlines() if line.startswith(":")]
     locations = [json.loads(line[1:]) for line in logs]

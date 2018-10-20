@@ -14,6 +14,9 @@ def get_locations(api_key, secret, lat1, lat2, lng1, lng2, lat_step, lng_step):
             if res["status"] == "OK":
                 res["query_params"] = {"location": location}
                 locations.append(":{}".format(json.dumps(res)))
+            else:
+                res["query_params"] = {"location": location}
+                locations.append("?{}".format(json.dumps(res)))
     print("locations size:", len(locations))
     return locations
 
@@ -32,11 +35,11 @@ def save_logs(logs, log_file):
 if __name__ == "__main__":
     api_key = "AIzaSyCw5exiqqFXVSQoNEdf4M43Jr0LlLcL4zY"
     secret = "Hkk3M1Z8gyEQ17YPwi5iit-ZHI0="
-    lat1 = None
-    lat2 = None
-    lng1 = None
-    lng2 = None
-    lat_step = None
-    lng_step = None
+    lat1 = 30.488286
+    lat2 = 30.7620646
+    lng1 = 103.924021
+    lng2 = 104.2523822
+    lat_step = 0.00008983
+    lng_step = 0.00058237
     logs = get_locations(api_key, secret, lat1, lat2, lng1, lng2, lat_step, lng_step)
     print(save_logs(logs, "logs.locations"))
