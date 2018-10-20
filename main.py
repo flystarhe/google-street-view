@@ -3,7 +3,6 @@ import json
 import codecs
 from streetview import download as download
 
-
 log_file = "?"
 with codecs.open(log_file, "r", "utf-8") as readers:
     logs = [line for line in readers.readlines() if line.startswith(":")]

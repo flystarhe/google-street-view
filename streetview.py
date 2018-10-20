@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import time
 import codecs
@@ -78,11 +79,13 @@ def download(root, locations, api_key, secret, **kwargs):
                 kwargs.pop("location")
                 kwargs["pano"] = res["pano"]
                 res["image_path"] = request_imagery(root, key=api_key, secret=secret, **kwargs)
-                logs.append(":[{}]{}".format(location, json.dumps(res)))
+                logs.append(":{}".format(json.dumps(res)))
             except Exception as err:
-                logs.append("![{}]{}".format(location, str(err)))
+                res["err"] = str(err)
+                logs.append("!{}".format(json.dumps(res)))
         else:
-            logs.append("?[{}]{}".format(location, json.dumps(res)))
+            res["query_params"] = {"location": location}
+            logs.append("?{}".format(json.dumps(res)))
         pos = len(logs)
         if pos % 1000 == 0:
             print("[{}] download of {:.2f}%".format(time.strftime("%m%d %H:%M:%S"), pos / total))
@@ -111,7 +114,6 @@ def download2(root, locations, api_key, secret, **kwargs):
 
 
 if __name__ == "__main__":
-    import sys
     locations = [sys.argv[1] if len(sys.argv) == 2 else "30.657054,104.065665"]
     api_key = "AIzaSyCw5exiqqFXVSQoNEdf4M43Jr0LlLcL4zY"
     secret = "Hkk3M1Z8gyEQ17YPwi5iit-ZHI0="

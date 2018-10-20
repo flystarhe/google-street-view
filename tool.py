@@ -5,7 +5,7 @@ import numpy as np
 from streetview import request_metadata
 
 
-def get_locations(api_key, secret, lat1, lat2, lng1, lng2, lat_step=0.0008983, lng_step=0.0058237):
+def get_locations(api_key, secret, lat1, lat2, lng1, lng2, lat_step, lng_step):
     locations = []
     for lat in np.arange(lat1, lat2, lat_step):
         for lng in np.arange(lng1, lng2, lng_step):
@@ -30,4 +30,13 @@ def save_logs(logs, log_file):
 
 
 if __name__ == "__main__":
-    pass
+    api_key = "AIzaSyCw5exiqqFXVSQoNEdf4M43Jr0LlLcL4zY"
+    secret = "Hkk3M1Z8gyEQ17YPwi5iit-ZHI0="
+    lat1 = None
+    lat2 = None
+    lng1 = None
+    lng2 = None
+    lat_step = None
+    lng_step = None
+    logs = get_locations(api_key, secret, lat1, lat2, lng1, lng2, lat_step, lng_step)
+    print(save_logs(logs, "logs.locations"))
