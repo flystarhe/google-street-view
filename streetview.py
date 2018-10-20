@@ -75,7 +75,8 @@ def download(root, locations, api_key, secret, **kwargs):
         res = request_metadata(key=api_key, secret=secret, **kwargs)
         if res["status"] == "OK":
             try:
-                kwargs["location"] = "{:.6f},{:.6f}".format(res["location"]["lat"], res["location"]["lng"])
+                kwargs.pop("location")
+                kwargs["pano"] = res["pano"]
                 res["image_path"] = request_imagery(root, key=api_key, secret=secret, **kwargs)
                 logs.append(":[{}]{}".format(location, json.dumps(res)))
             except Exception as err:
@@ -84,7 +85,7 @@ def download(root, locations, api_key, secret, **kwargs):
             logs.append("?[{}]{}".format(location, json.dumps(res)))
         pos = len(logs)
         if pos % 1000 == 0:
-            print(">> download {:06d}, of {:.2f}%".format(pos, pos / total))
+            print("[{}] download of {:.2f}%".format(time.strftime("%m%d %H:%M:%S"), pos / total))
     return save_logs(logs, "{}/0000".format(root))
 
 
@@ -97,15 +98,15 @@ def download2(root, locations, api_key, secret, **kwargs):
     os.makedirs(root, exist_ok=True)
     for location in locations:
         try:
-            kwargs["location"] = location
-            res = request_metadata(key=api_key, secret=secret, **kwargs)
-            res["image_path"] = request_imagery(root, key=api_key, secret=secret, **kwargs)
-            logs.append(":[{}]{}".format(location, json.dumps(res)))
+            kwargs["pano"] = location["pano"]
+            location["image_path"] = request_imagery(root, key=api_key, secret=secret, **kwargs)
+            logs.append(":{}".format(json.dumps(location)))
         except Exception as err:
-            logs.append("![{}]{}".format(location, str(err)))
+            location["err"] = str(err)
+            logs.append("!{}".format(json.dumps(location)))
         pos = len(logs)
         if pos % 1000 == 0:
-            print(">> download {:06d}, of {:.2f}%".format(pos, pos / total))
+            print("[{}] download of {:.2f}%".format(time.strftime("%m%d %H:%M:%S"), pos / total))
     return save_logs(logs, "{}/0000".format(root))
 
 

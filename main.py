@@ -1,11 +1,13 @@
 import sys
-import numpy as np
+import json
+import codecs
 from streetview import download as download
 
-locations = []
-for lat in np.arange(30.488286, 30.7620646, 0.0008983):
-    for lng in np.arange(103.924021, 104.2523822, 0.0058237):
-        locations.append("{:.6f},{:.6f}".format(lat, lng))
+
+log_file = "?"
+with codecs.open(log_file, "r", "utf-8") as readers:
+    logs = [line for line in readers.readlines() if line.startswith(":")]
+    locations = [json.loads(line[1:]) for line in logs]
 print("locations size:", len(locations))
 
 root = sys.argv[1] if len(sys.argv) > 1 else "downloads"
