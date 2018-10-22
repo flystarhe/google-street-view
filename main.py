@@ -2,7 +2,7 @@ import sys
 import time
 import json
 import codecs
-from streetview import download2 as download
+from streetview import download3 as download
 
 log_file = "logs.locations.100"
 with codecs.open(log_file, "r", "utf-8") as readers:
