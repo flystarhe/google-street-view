@@ -59,4 +59,4 @@ if __name__ == "__main__":
     print(time.strftime("#%Y-%m-%d %H:%M:%S"))
     logs = get_locations_pano(api_key, secret, locations)
     print(time.strftime("#%Y-%m-%d %H:%M:%S"))
-    print(save_logs(logs, "logs.locations.{}".format(step)))
+    print(save_logs(logs, "logs.locations.{}".format(step)), len(logs))
