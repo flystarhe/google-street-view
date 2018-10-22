@@ -37,9 +37,9 @@ def get_locations_pano(api_key, secret, locations):
 
 def save_logs(logs, log_file):
     with codecs.open(log_file, "w", "utf-8") as writer:
-        counta = len([True for i in logs if i.startswith(":[")])
-        countb = len([True for i in logs if i.startswith("![")])
-        countc = len([True for i in logs if i.startswith("?[")])
+        counta = len([True for i in logs if i.startswith(":")])
+        countb = len([True for i in logs if i.startswith("!")])
+        countc = len([True for i in logs if i.startswith("?")])
         writer.write(time.strftime("#%Y-%m-%d %H:%M:%S [{}/{}/{}]\n".format(counta, countb, countc)))
         writer.write("\n".join(logs))
         writer.write("\n")
