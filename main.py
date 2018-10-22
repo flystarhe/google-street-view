@@ -2,13 +2,15 @@ import sys
 import time
 import json
 import codecs
+from tool import seq_unique
 from streetview import download3 as download
 
 log_file = "logs.locations.100"
 with codecs.open(log_file, "r", "utf-8") as readers:
     logs = [line for line in readers.readlines() if line.startswith(":")]
     locations = [json.loads(line[1:]) for line in logs]
-print("locations size:", len(locations))
+locations = seq_unique(locations, "pano_id")
+print("#locations:", len(locations))
 
 root = sys.argv[1] if len(sys.argv) > 1 else "images"
 api_key = "AIzaSyCw5exiqqFXVSQoNEdf4M43Jr0LlLcL4zY"

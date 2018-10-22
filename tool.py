@@ -9,6 +9,17 @@ import numpy as np
 from streetview import request_metadata
 
 
+def seq_unique(items, attr_name):
+    res, keys = list(), set()
+    for item in items:
+        key = item[attr_name]
+        if key not in keys:
+            res.append(item)
+            keys.add(key)
+    print("#total: {}, only value: {}".format(len(items), len(res)))
+    return res
+
+
 def get_metadata(api_key, secret, location):
     res = request_metadata(key=api_key, secret=secret, location=location)
     res["query_params"] = {"location": location}
