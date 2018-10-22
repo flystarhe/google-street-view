@@ -1,4 +1,5 @@
 import sys
+import time
 import json
 import codecs
 from streetview import download2 as download
@@ -13,9 +14,11 @@ root = sys.argv[1] if len(sys.argv) > 1 else "images"
 api_key = "AIzaSyCw5exiqqFXVSQoNEdf4M43Jr0LlLcL4zY"
 secret = "Hkk3M1Z8gyEQ17YPwi5iit-ZHI0="
 
+print(time.strftime("#%Y-%m-%d %H:%M:%S"))
 if len(sys.argv) > 2:
     x = sys.argv[2]
     download("{}/{}".format(root, x), locations, api_key, secret, size="600x400", radius="50", heading=x)
 else:
     x = "x"
     download("{}/{}".format(root, x), locations, api_key, secret, size="600x400", radius="50")
+print(time.strftime("#%Y-%m-%d %H:%M:%S"))
