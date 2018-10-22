@@ -1,4 +1,4 @@
-import sys
+import time
 import json
 import codecs
 import numpy as np
@@ -7,6 +7,7 @@ from streetview import request_metadata
 
 def get_locations(api_key, secret, lat1, lat2, lng1, lng2, lat_step, lng_step):
     locations = []
+    start_time = time.time()
     for lat in np.arange(lat1, lat2, lat_step):
         for lng in np.arange(lng1, lng2, lng_step):
             location = "{:.6f},{:.6f}".format(lat, lng)
@@ -14,9 +15,8 @@ def get_locations(api_key, secret, lat1, lat2, lng1, lng2, lat_step, lng_step):
             if res["status"] == "OK":
                 res["query_params"] = {"location": location}
                 locations.append(":{}".format(json.dumps(res)))
-            else:
-                res["query_params"] = {"location": location}
-                locations.append("?{}".format(json.dumps(res)))
+            if int(time.time() - start_time) % 600 == 0:
+                print("[{}]{:.4f}, {}".format(time.strftime("%H:%M"), (lat - lat1) / (lat2 - lat1), len(locations)))
     print("locations size:", len(locations))
     return locations
 

@@ -2,7 +2,7 @@ import requests
 from urllib.parse import urlencode
 
 """
-R=6378.137
+R = 6378.137
 import math
 import numpy as np
 "lat: {:.6f} about 1 km, lng: {:.6f} about 1 km".format(1/(R*np.pi/180), 1/(R*np.pi/180*math.cos(30)))
@@ -31,11 +31,11 @@ def get_location(**kwargs):
 if __name__ == "__main__":
     # (30.488286, 30.7620646), (103.924021, 104.2523822)
     api_key = "AIzaSyCw5exiqqFXVSQoNEdf4M43Jr0LlLcL4zY"
-    print(get_location(language="zh-CN", key=api_key, address="中国成都市龙泉驿区天平村")["results"][0])
+    print(get_location(language="zh-CN", key=api_key, address="中国四川省成都市龙泉驿区天平村")["results"][0])
     print(get_address(language="zh-CN", key=api_key, latlng="30.6488945,104.2523822")["results"][0])
     print(get_location(language="zh-CN", key=api_key, address="中国四川省成都市双流县麓山大道一段17号")["results"][0])
     print(get_address(language="zh-CN", key=api_key, latlng="30.488286,104.06852")["results"][0])
     print(get_location(language="zh-CN", key=api_key, address="中国四川省成都市青羊区文家正街227号")["results"][0])
     print(get_address(language="zh-CN", key=api_key, latlng="30.6907126,103.924021")["results"][0])
-    print(get_location(language="zh-CN", key=api_key, address="中国四川省成都市新都区北星大道一段")["results"][0])
+    print(get_location(language="zh-CN", key=api_key, address="中国四川省成都市金牛区北星大道一段")["results"][0])
     print(get_address(language="zh-CN", key=api_key, latlng="30.7620646,104.0758888")["results"][0])

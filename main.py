@@ -13,6 +13,9 @@ root = sys.argv[1] if len(sys.argv) > 1 else "downloads"
 api_key = "AIzaSyCw5exiqqFXVSQoNEdf4M43Jr0LlLcL4zY"
 secret = "Hkk3M1Z8gyEQ17YPwi5iit-ZHI0="
 
-download("{}_{}".format(root, "x"), locations, api_key, secret, size="600x400", radius="50")
-for x in range(0, 360, 45):
-    download("{}_{}".format(root, x), locations, api_key, secret, size="600x400", radius="50", heading=str(x))
+if len(sys.argv) > 2:
+    x = sys.argv[2]
+    download("{}_{}".format(root, x), locations, api_key, secret, size="600x400", radius="50", heading=x)
+else:
+    x = "x"
+    download("{}_{}".format(root, x), locations, api_key, secret, size="600x400", radius="50")
