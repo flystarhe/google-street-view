@@ -40,7 +40,7 @@ def sign_url(url, secret=None):
 
 
 def save_logs(logs, log_file):
-    with codecs.open(log_file, "a", "utf-8") as writer:
+    with codecs.open(log_file, "w", "utf-8") as writer:
         counta = len([True for i in logs if i.startswith(":[")])
         countb = len([True for i in logs if i.startswith("![")])
         countc = len([True for i in logs if i.startswith("?[")])
