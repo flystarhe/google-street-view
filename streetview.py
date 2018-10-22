@@ -93,6 +93,28 @@ def download(root, locations, api_key, secret, **kwargs):
     return save_logs(logs, "{}/0000".format(root))
 
 
+def download1(root, locations, api_key, secret, **kwargs):
+    """
+    size: "600x400", fov: "90", pitch: "0", radius: "50", heading: "0"
+    """
+    logs = []
+    total = len(locations)
+    os.makedirs(root, exist_ok=True)
+    for location in locations:
+        res = {"location": location}
+        try:
+            kwargs["location"] = location
+            res["image_path"] = request_imagery(root, key=api_key, secret=secret, **kwargs)
+            logs.append(":{}".format(json.dumps(res)))
+        except Exception as err:
+            res["err"] = str(err)
+            logs.append("!{}".format(json.dumps(res)))
+        pos = len(logs)
+        if pos % 1000 == 0:
+            print("[{}] download of {:.2f}%".format(time.strftime("%m%d %H:%M:%S"), pos / total))
+    return save_logs(logs, "{}/0000".format(root))
+
+
 def download2(root, locations, api_key, secret, **kwargs):
     """
     size: "600x400", fov: "90", pitch: "0", radius: "50", heading: "0"
@@ -103,14 +125,34 @@ def download2(root, locations, api_key, secret, **kwargs):
     for location in locations:
         try:
             kwargs["pano"] = location["pano_id"]
-            # kwargs["pano"] = "{:.6f},{:.6f}".format(location["location"]["lat"], location["location"]["lng"])
             location["image_path"] = request_imagery(root, key=api_key, secret=secret, **kwargs)
             logs.append(":{}".format(json.dumps(location)))
         except Exception as err:
             location["err"] = str(err)
             logs.append("!{}".format(json.dumps(location)))
         pos = len(logs)
-        if pos % 1000 == 0:
+        if pos % 100 == 0:
+            print("[{}] download of {:.2f}%".format(time.strftime("%m%d %H:%M:%S"), pos / total))
+    return save_logs(logs, "{}/0000".format(root))
+
+
+def download3(root, locations, api_key, secret, **kwargs):
+    """
+    size: "600x400", fov: "90", pitch: "0", radius: "50", heading: "0"
+    """
+    logs = []
+    total = len(locations)
+    os.makedirs(root, exist_ok=True)
+    for location in locations:
+        try:
+            kwargs["location"] = "{:.6f},{:.6f}".format(location["location"]["lat"], location["location"]["lng"])
+            location["image_path"] = request_imagery(root, key=api_key, secret=secret, **kwargs)
+            logs.append(":{}".format(json.dumps(location)))
+        except Exception as err:
+            location["err"] = str(err)
+            logs.append("!{}".format(json.dumps(location)))
+        pos = len(logs)
+        if pos % 100 == 0:
             print("[{}] download of {:.2f}%".format(time.strftime("%m%d %H:%M:%S"), pos / total))
     return save_logs(logs, "{}/0000".format(root))
 
