@@ -59,8 +59,9 @@ def request_metadata(secret, **kwargs):
 
 def request_imagery(root, secret, **kwargs):
     parameters = urlencode(kwargs)
+    tag = kwargs["location"] if "location" in kwargs else kwargs["pano"]
     url = sign_url("https://maps.googleapis.com/maps/api/streetview?" + parameters, secret)
-    res = urlretrieve(url, "{}/{},{}".format(root, kwargs["location"], time.strftime("%m%d%H%M%S.jpg")))
+    res = urlretrieve(url, "{}/{},{}".format(root, tag, time.strftime("%m%d%H%M%S.jpg")))
     return os.path.abspath(res[0])
 
 
@@ -102,6 +103,7 @@ def download2(root, locations, api_key, secret, **kwargs):
     for location in locations:
         try:
             kwargs["pano"] = location["pano_id"]
+            # kwargs["pano"] = "{:.6f},{:.6f}".format(location["location"]["lat"], location["location"]["lng"])
             location["image_path"] = request_imagery(root, key=api_key, secret=secret, **kwargs)
             logs.append(":{}".format(json.dumps(location)))
         except Exception as err:
