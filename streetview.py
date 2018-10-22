@@ -77,7 +77,7 @@ def download(root, locations, api_key, secret, **kwargs):
         if res["status"] == "OK":
             try:
                 kwargs.pop("location")
-                kwargs["pano"] = res["pano"]
+                kwargs["pano"] = res["pano_id"]
                 res["image_path"] = request_imagery(root, key=api_key, secret=secret, **kwargs)
                 logs.append(":{}".format(json.dumps(res)))
             except Exception as err:
@@ -101,7 +101,7 @@ def download2(root, locations, api_key, secret, **kwargs):
     os.makedirs(root, exist_ok=True)
     for location in locations:
         try:
-            kwargs["pano"] = location["pano"]
+            kwargs["pano"] = location["pano_id"]
             location["image_path"] = request_imagery(root, key=api_key, secret=secret, **kwargs)
             logs.append(":{}".format(json.dumps(location)))
         except Exception as err:
