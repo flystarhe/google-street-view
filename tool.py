@@ -1,3 +1,4 @@
+import os
 import sys
 import time
 import math
@@ -7,6 +8,26 @@ import functools
 import multiprocessing
 import numpy as np
 from streetview import request_metadata
+
+
+class Logger(object):
+    def __init__(self, root, name="log.data"):
+        os.makedirs(root, exist_ok=True)
+        self.path = os.path.join(root, name)
+        self.data = ["-" * 50]
+        self.save("w")
+
+    def log(self, message):
+        self.data.append(message)
+        if len(self.data) > 100:
+            self.save("a")
+
+    def save(self, mode):
+        with codecs.open(self.path, mode, "utf-8") as writer:
+            message = "\n".join(self.data)
+            writer.write(message)
+            writer.write("\n")
+        self.data = []
 
 
 def seq_unique(items, attr_name):
