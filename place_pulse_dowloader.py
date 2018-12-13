@@ -1,5 +1,6 @@
 import sys
 import json
+import time
 import pandas as pd
 from tool import Logger
 from streetview import request_metadata, request_imagery
@@ -32,7 +33,7 @@ def load_locations(csv_file):
 
 def download_images(root, logger, csv_file, api_key, secret, **kwargs):
     locations = load_locations(csv_file)
-    logger.log("size: {}".format(len(locations)))
+    logger.log("[{}] size: {}".format(time.strftime("%Y-%m-%d %H:%M:%S"), len(locations)))
     for key, location in locations.items():
         kwargs["location"] = location
         res = request_metadata(key=api_key, secret=secret, **kwargs)
@@ -48,6 +49,7 @@ def download_images(root, logger, csv_file, api_key, secret, **kwargs):
         else:
             res["query_params"] = {"location": location}
             logger.log("?{}".format(json.dumps(res)))
+    logger.log("[{}] end.".format(time.strftime("%Y-%m-%d %H:%M:%S")))
     logger.save("a")
     return logger.path
 
