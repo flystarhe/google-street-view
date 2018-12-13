@@ -12,7 +12,7 @@ Place Pulse 2.0: A Global Map
 
 Download images
 """
-csv_file = "/data2/tmps/src/data_set_without_pictures/votes.csv"
+csv_file = "/data/votes.csv"
 
 
 def load_votes(csv_file):
