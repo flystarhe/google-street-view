@@ -73,11 +73,14 @@ def download(root, locations, api_key, secret, **kwargs):
     total = len(locations)
     os.makedirs(root, exist_ok=True)
     for location in locations:
+        if "pano" in kwargs:
+            kwargs.pop("pano")
         kwargs["location"] = location
         res = request_metadata(key=api_key, secret=secret, **kwargs)
         if res["status"] == "OK":
             try:
-                kwargs.pop("location")
+                if "location" in kwargs:
+                    kwargs.pop("location")
                 kwargs["pano"] = res["pano_id"]
                 res["image_path"] = request_imagery(root, key=api_key, secret=secret, **kwargs)
                 logs.append(":{}".format(json.dumps(res)))

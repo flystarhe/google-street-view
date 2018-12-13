@@ -50,6 +50,8 @@ def download_images(root, logger, csv_file, api_key, secret, **kwargs):
     locations = load_locations(csv_file)
     logger.log("[{}] size: {}".format(time.strftime("%Y-%m-%d %H:%M:%S"), len(locations)))
     for i, (key, location) in enumerate(locations.items(), 1):
+        if "pano" in kwargs:
+            kwargs.pop("pano")
         kwargs["location"] = location
         res = request_metadata(key=api_key, secret=secret, **kwargs)
         res["log_id"] = key
@@ -57,7 +59,8 @@ def download_images(root, logger, csv_file, api_key, secret, **kwargs):
         res["location"] = location
         if res["status"] == "OK":
             try:
-                kwargs.pop("location")
+                if "location" in kwargs:
+                    kwargs.pop("location")
                 kwargs["pano"] = res["pano_id"]
                 res["image_path"] = request_imagery(root, key=api_key, secret=secret, **kwargs)
                 logger.log(":{}".format(json.dumps(res)))
