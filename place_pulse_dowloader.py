@@ -37,6 +37,7 @@ def download_images(root, logger, csv_file, api_key, secret, **kwargs):
     for key, location in locations.items():
         kwargs["location"] = location
         res = request_metadata(key=api_key, secret=secret, **kwargs)
+        res["id"] = key
         if res["status"] == "OK":
             try:
                 kwargs.pop("location")
