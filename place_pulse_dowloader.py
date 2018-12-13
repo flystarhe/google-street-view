@@ -34,10 +34,11 @@ def load_locations(csv_file):
 def download_images(root, logger, csv_file, api_key, secret, **kwargs):
     locations = load_locations(csv_file)
     logger.log("[{}] size: {}".format(time.strftime("%Y-%m-%d %H:%M:%S"), len(locations)))
-    for key, location in locations.items():
+    for i, (key, location) in enumerate(locations.items(), 1):
         kwargs["location"] = location
         res = request_metadata(key=api_key, secret=secret, **kwargs)
-        res["id"] = key
+        res["log_id"] = key
+        res["log_line_num"] = i
         if res["status"] == "OK":
             try:
                 kwargs.pop("location")
