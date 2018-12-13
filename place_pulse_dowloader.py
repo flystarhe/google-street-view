@@ -13,7 +13,7 @@ Place Pulse 2.0: A Global Map
 import os
 import sys
 
-mylibs = ["/data/hejian/PycharmProjects/ined_lung_nodule_3d"]
+mylibs = ["/data/place_pulse_downloader"]
 os.chdir(mylibs[0])
 for mylib in mylibs:
     if mylib not in sys.path:
