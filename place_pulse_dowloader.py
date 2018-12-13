@@ -10,9 +10,24 @@ http://pulse.media.mit.edu/data/
 
 Place Pulse 2.0: A Global Map
 
-Download images
-"""
+import os
+import sys
+
+mylibs = ["/data/hejian/PycharmProjects/ined_lung_nodule_3d"]
+os.chdir(mylibs[0])
+for mylib in mylibs:
+    if mylib not in sys.path:
+        sys.path.insert(0, mylib)
+
+from place_pulse_dowloader import *
+
+root = "images_pulse"
+logger = Logger(root, "log.imgs")
 csv_file = "/data/votes.csv"
+api_key = "AIzaSyCw5exiqqFXVSQoNEdf4M43Jr0LlLcL4zY"
+secret = "Hkk3M1Z8gyEQ17YPwi5iit-ZHI0="
+print(download_images(root, logger, csv_file, api_key, secret, size="400x300"))
+"""
 
 
 def load_votes(csv_file):
@@ -39,6 +54,7 @@ def download_images(root, logger, csv_file, api_key, secret, **kwargs):
         res = request_metadata(key=api_key, secret=secret, **kwargs)
         res["log_id"] = key
         res["log_line_num"] = i
+        res["location"] = location
         if res["status"] == "OK":
             try:
                 kwargs.pop("location")
@@ -58,8 +74,8 @@ def download_images(root, logger, csv_file, api_key, secret, **kwargs):
 
 if __name__ == "__main__":
     root = sys.argv[1] if len(sys.argv) > 1 else "images_pulse"
-    name = sys.argv[2] if len(sys.argv) > 2 else "log.imgs"
-    logger = Logger(root, name)
+    logger = Logger(root, "log.imgs")
+    csv_file = "/data/votes.csv"
     api_key = "AIzaSyCw5exiqqFXVSQoNEdf4M43Jr0LlLcL4zY"
     secret = "Hkk3M1Z8gyEQ17YPwi5iit-ZHI0="
     print(download_images(root, logger, csv_file, api_key, secret, size="400x300"))
