@@ -1,6 +1,7 @@
 import os
 import math
 import codecs
+import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
@@ -75,5 +76,17 @@ def main(votes_file, label="safety", output_dir="tmps"):
 
 if __name__ == "__main__":
     votes_file = "/data/votes.csv"
+    output_dir = "."
     for label in "safety,beautiful,lively,wealthy,boring,depressing".split(","):
-        print(main(votes_file, label=label, output_dir="."))
+        print(main(votes_file, label, output_dir))
+
+    for label in "safety,beautiful,lively,wealthy,boring,depressing".split(","):
+        txt = os.path.join(output_dir, "scores_{}.txt".format(label))
+
+        data = []
+        with open(txt) as f:
+            for i in f:
+                data.append(i.split()[-1])
+
+        data = np.float32(data)
+        print(label, len(data), data.min(), data.max())
