@@ -2,8 +2,8 @@ import sys
 import time
 import json
 import codecs
-from tool import seq_unique
-from streetview import download3 as download
+from src.tool import seq_unique
+from src.streetview import download3 as download
 
 log_file = "logs.locations.{}".format(sys.argv[1])
 with codecs.open(log_file, "r", "utf-8") as readers:
