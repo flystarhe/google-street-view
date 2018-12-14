@@ -31,3 +31,10 @@ def list_to_file(data, file_name, output_dir="."):
             writer.write(json.dumps(line))
             writer.write("\n")
     return file_path
+
+
+if __name__ == "__main__":
+    log_file = "/data1/tmps/?/log.imgs"
+    data = log_imgs_to_json(log_file, simple=True)
+    res = list_to_file(data, "dataset.txt", os.path.dirname(log_file))
+    print(res)

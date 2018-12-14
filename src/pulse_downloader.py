@@ -9,24 +9,6 @@ from src.streetview import request_metadata, request_imagery
 http://pulse.media.mit.edu/data/
 
 Place Pulse 2.0: A Global Map
-
-import os
-import sys
-
-mylibs = ["/data/place_pulse_downloader"]
-os.chdir(mylibs[0])
-for mylib in mylibs:
-    if mylib not in sys.path:
-        sys.path.insert(0, mylib)
-
-from place_pulse_dowloader import *
-
-root = "images_pulse"
-logger = Logger(root, "log.imgs")
-csv_file = "/data/votes.csv"
-api_key = "AIzaSyCw5exiqqFXVSQoNEdf4M43Jr0LlLcL4zY"
-secret = "Hkk3M1Z8gyEQ17YPwi5iit-ZHI0="
-print(download_images(root, logger, csv_file, api_key, secret, size="400x300"))
 """
 
 
@@ -56,7 +38,7 @@ def download_images(root, logger, csv_file, api_key, secret, **kwargs):
         res = request_metadata(key=api_key, secret=secret, **kwargs)
         res["log_id"] = key
         res["log_line_num"] = i
-        res["location"] = location
+        res["log_location"] = location
         if res["status"] == "OK":
             try:
                 if "location" in kwargs:
@@ -65,10 +47,10 @@ def download_images(root, logger, csv_file, api_key, secret, **kwargs):
                 res["image_path"] = request_imagery(root, key=api_key, secret=secret, **kwargs)
                 logger.log(":{}".format(json.dumps(res)))
             except Exception as err:
-                res["err"] = str(err)
+                res["log_err"] = str(err)
                 logger.log("!{}".format(json.dumps(res)))
         else:
-            res["query_params"] = {"location": location}
+            res["log_params"] = {"location": location}
             logger.log("?{}".format(json.dumps(res)))
     logger.log("[{}] end.".format(time.strftime("%Y-%m-%d %H:%M:%S")))
     logger.save("a")

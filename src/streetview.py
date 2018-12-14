@@ -2,10 +2,10 @@ import os
 import sys
 import json
 import time
-import codecs
 import requests
 from urllib.parse import urlencode
 from urllib.request import urlretrieve
+from src.tool import save_logs
 
 # from PIL import Image
 # from io import BytesIO
@@ -37,17 +37,6 @@ def sign_url(url, secret=None):
     original_url = url.scheme + "://" + url.netloc + url.path + "?" + url.query
     # Return signed URL
     return original_url + "&signature=" + encoded_signature.decode("utf8")
-
-
-def save_logs(logs, log_file):
-    with codecs.open(log_file, "w", "utf-8") as writer:
-        counta = len([True for i in logs if i.startswith(":")])
-        countb = len([True for i in logs if i.startswith("!")])
-        countc = len([True for i in logs if i.startswith("?")])
-        writer.write(time.strftime("#%Y-%m-%d %H:%M:%S [{}/{}/{}]\n".format(counta, countb, countc)))
-        writer.write("\n".join(logs))
-        writer.write("\n")
-    return log_file
 
 
 def request_metadata(secret, **kwargs):
