@@ -75,4 +75,5 @@ def main(votes_file, label="safety", output_dir="tmps"):
 
 if __name__ == "__main__":
     votes_file = "/data/votes.csv"
-    print(main(votes_file, output_dir="tmps"))
+    for label in "safety,beautiful,lively,wealthy,boring,depressing".split(","):
+        print(main(votes_file, label=label, output_dir="."))
