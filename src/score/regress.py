@@ -1,10 +1,10 @@
 import os
-import sys
-import glob
+import time
 import cv2 as cv
 import numpy as np
-import pandas as pd
+import matplotlib.pyplot as plt
 from scipy.stats import multivariate_normal
+from sklearn.externals import joblib
 from sklearn import svm
 
 sift = cv.xfeatures2d.SIFT_create()
@@ -16,17 +16,11 @@ def dictionary(descriptors, N):
     return np.float32(em.getMat("means")), np.float32(em.getMatVector("covs")), np.float32(em.getMat("weights"))[0]
 
 
-def image_descriptors(file):
-    img = cv.imread(file, 0)
-    img = cv.resize(img, (256, 256))
-    _, descriptors = sift.detectAndCompute(img, None)
+def image_descriptors(image):
+    image = cv.imread(image, 0)
+    image = cv.resize(image, (256, 256))
+    _, descriptors = sift.detectAndCompute(image, None)
     return descriptors
-
-
-def folder_descriptors(folder):
-    files = glob.glob(os.path.join(folder, "*.png"))
-    print("Calculating descriptos. Number of images is", len(files))
-    return np.concatenate([image_descriptors(file) for file in files])
 
 
 def likelihood_moment(x, ytk, moment):
@@ -85,8 +79,9 @@ def fisher_vector(samples, means, covs, w):
     return fv
 
 
-def generate_gmm(data_dir, N, sub_dirs=["train", "test"]):
-    words = np.concatenate([folder_descriptors(os.path.join(data_dir, i)) for i in sub_dirs])
+def generate_gmm(gmm_path, N, images):
+    print("Calculating descriptos. Number of images is", len(images))
+    words = np.concatenate([image_descriptors(image) for image in images])
 
     print("Training GMM of size", N)
     means, covs, weights = dictionary(words, N)
@@ -97,71 +92,114 @@ def generate_gmm(data_dir, N, sub_dirs=["train", "test"]):
     covs = np.float32([m for k, m in enumerate(covs) if weights[k] > th])
     weights = np.float32([m for k, m in enumerate(weights) if weights[k] > th])
 
-    np.save(os.path.join(data_dir, "means.gmm.npy"), means)
-    np.save(os.path.join(data_dir, "covs.gmm.npy"), covs)
-    np.save(os.path.join(data_dir, "weights.gmm.npy"), weights)
+    np.save(os.path.join(gmm_path, "means.gmm.npy"), means)
+    np.save(os.path.join(gmm_path, "covs.gmm.npy"), covs)
+    np.save(os.path.join(gmm_path, "weights.gmm.npy"), weights)
     return means, covs, weights
 
 
-def get_fisher_vectors_from_folder(folder, gmm):
-    """if folder is train, then return the fisher feature for the pictures in this folder as well as their scores
-       else return the fisher feature as well as their file name"""
-    files = glob.glob(os.path.join(folder, "*.png"))
-    if "train" in folder:
-        with open(os.path.join(folder, "score.txt")) as f:
-            score = {l.split()[0]: l.split()[1] for l in f}
-
-        ff = np.float32([fisher_vector(image_descriptors(file), *gmm) for file in files])
-        ss = np.float32([score[os.path.basename(file)] for file in files])
+def get_fisher_vectors(images, score, gmm):
+    if score:
+        X = np.float32([fisher_vector(image_descriptors(image), *gmm) for image, uid in images])
+        y = np.float32([score[uid] for image, uid in images])
     else:
-        ff = np.float32([fisher_vector(image_descriptors(file), *gmm) for file in files])
-        ss = [os.path.basename(file) for file in files]
-    return ff, ss
+        X = np.float32([fisher_vector(image_descriptors(image), *gmm) for image, uid in images])
+        y = [uid for image, uid in images]
+    return X, y
 
 
-def fisher_features(data_dir, gmm, sub_dirs=["train", "test"]):
-    features = dict()
-    score = dict()
-    for sub_dir in sub_dirs:
-        fv, sc = get_fisher_vectors_from_folder(os.path.join(data_dir, sub_dir), gmm)
-        features[sub_dir] = fv
-        score[sub_dir] = sc
-    return features, score
+def save_svr(svr, save_to="."):
+    if os.path.isdir(save_to):
+        save_to = os.path.join(save_to, "svr.model")
+    return joblib.dump(svr, save_to)
 
 
-def load_gmm(data_dir):
-    files = ["means.gmm.npy", "covs.gmm.npy", "weights.gmm.npy"]
-    return [np.load(os.path.join(data_dir, file)) for file in files]
+def load_svr(svr_path):
+    if os.path.isdir(svr_path):
+        svr_path = os.path.join(svr_path, "svr.model")
+    return joblib.load(svr_path)
 
 
-"""
-tree -L 2 data_dir
+def load_gmm(gmm_path):
+    if os.path.isfile(gmm_path):
+        gmm_path = os.path.dirname(gmm_path)
+    npy_list = ["means.gmm.npy", "covs.gmm.npy", "weights.gmm.npy"]
+    return [np.load(os.path.join(gmm_path, npy_file)) for npy_file in npy_list]
 
-"""
 
-
-def main(data_dir, gmm_existing=False, gmm_number=5):
-    gmm = load_gmm(data_dir) if gmm_existing else generate_gmm(data_dir, gmm_number)
-
-    ff, ss = fisher_features(data_dir, gmm)
-
-    # TBD, split the features into training and validation
-    # TBD, user full connected neural network train the data and score
+def train(X, y):
     svr = svm.SVR(kernel="linear")
-    svr.fit(ff["training"], ss["training"])
-    Y = svr.predict(ff["test"])
+    svr.fit(X, y)
+    return svr
 
+
+def test(svr, gmm, image, uid=None):
+    if isinstance(svr, str):
+        svr = load_svr(svr)
+
+    if isinstance(gmm, str):
+        gmm = load_gmm(gmm)
+
+    X, y = get_fisher_vectors([[image, uid]], None, gmm)
+    y_ = svr.predict(X)
+    return y, y_
+
+
+def eval(targ, pred, bins=10, display=False):
     rs = []
-    for s_t, s_p in zip(ss["test"], Y):
-        rs.append([s_t, s_p])
+    for t, p in zip(targ, pred):
+        rs.append([t, p])
+
+    if display:
+        loss = [p - t for t, p in rs]
+        plt.hist(loss, bins=bins)
+        plt.show()
+
     return rs
 
 
-if __name__ == "__main__":
-    args = sys.argv
-    data_dir = args[1]
-    gmm_existing = args[2].lower() == "true" if len(args) > 2 else False
-    gmm_number = int(args[3]) if len(args) > 3 else 5
-    print(data_dir, gmm_existing, gmm_number)
-    rs = main(data_dir, gmm_existing, gmm_number)
-    pd.DataFrame(rs, columns="targ,pred".split(","))
+def main(work_dir, score_file, train_file, test_file, gmm_number=5, force=True):
+    score = {}
+    with open(score_file) as file:
+        for line in file:
+            try:
+                uid, val = line.strip().split()
+                score[uid] = np.float32(val)
+            except:
+                pass
+
+    images_train = []
+    with open(train_file) as file:
+        for line in file:
+            try:
+                image, uid = line.strip().split()
+                images_train.append([image, uid])
+            except:
+                pass
+
+    images_test = []
+    with open(test_file) as file:
+        for line in file:
+            try:
+                image, uid = line.strip().split()
+                images_test.append([image, uid])
+            except:
+                pass
+
+    if force:
+        gmm = generate_gmm(work_dir, gmm_number, images_train)
+    else:
+        gmm = load_gmm(work_dir)
+
+    train_X, train_y = get_fisher_vectors(images_train, score, gmm)
+    test_X, test_y = get_fisher_vectors(images_test, score, gmm)
+
+    svr = train(train_X, train_y)
+
+    train_y_ = svr.predict(train_X)
+    test_y_ = svr.predict(test_X)
+
+    print("On train:", eval(train_y, train_y_))
+    print("On test:", eval(test_y, test_y_))
+
+    return save_svr(svr, time.strftime("svr.model.%m%d%H%M"))
