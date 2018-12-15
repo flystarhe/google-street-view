@@ -7,7 +7,11 @@ from scipy.stats import multivariate_normal
 from sklearn.externals import joblib
 from sklearn import svm
 
+cache_dir = "tmps"
 sift = cv.xfeatures2d.SIFT_create()
+
+if cache_dir:
+    os.makedirs(cache_dir, exist_ok=True)
 
 
 def dictionary(descriptors, N):
@@ -16,10 +20,19 @@ def dictionary(descriptors, N):
     return np.float32(em.getMat("means")), np.float32(em.getMatVector("covs")), np.float32(em.getMat("weights"))[0]
 
 
-def image_descriptors(image):
+def image_descriptors(image, keep=True):
+    if cache_dir:
+        npy_file = os.path.join(cache_dir, "{}.npy".format(os.path.basename(image)))
+        if os.path.isfile(npy_file):
+            return np.load(npy_file)
+
     image = cv.imread(image, 0)
     image = cv.resize(image, (256, 256))
     _, descriptors = sift.detectAndCompute(image, None)
+
+    if cache_dir and keep:
+        np.save(npy_file, descriptors)
+
     return descriptors
 
 
