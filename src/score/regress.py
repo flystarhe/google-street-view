@@ -18,7 +18,8 @@ def dictionary(descriptors, N):
     em = cv.ml.EM_create()
     em.setClustersNumber(N)
     em.trainEM(descriptors)
-    return np.float32(em.getMat("means")), np.float32(em.getMatVector("covs")), np.float32(em.getMat("weights"))[0]
+    # np.float32(em.getMat("means")), np.float32(em.getMatVector("covs")), np.float32(em.getMat("weights"))[0]
+    return np.float32(em.getMeans()), np.float32(em.getCovs()), np.float32(em.getWeights()[0])
 
 
 def image_descriptors(image, keep=True):
