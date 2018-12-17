@@ -90,7 +90,7 @@ def fisher_vector(samples, means, covs, w):
     a = fisher_vector_weights(s0, s1, s2, means, covs, w, T)
     b = fisher_vector_means(s0, s1, s2, means, covs, w, T)
     c = fisher_vector_sigma(s0, s1, s2, means, covs, w, T)
-    fv = np.concatenate([np.concatenate(a), np.concatenate(b), np.concatenate(c)])
+    fv = np.concatenate([a, np.concatenate(b), np.concatenate(c)])
     fv = normalize(fv)
     return fv
 
