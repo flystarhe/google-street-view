@@ -94,7 +94,7 @@ def fisher_vector(samples, means, covs, w):
 
 def generate_gmm(gmm_path, N, images):
     print("Calculating descriptos. Number of images is", len(images))
-    words = np.concatenate([image_descriptors(image) for image in images])
+    words = np.concatenate([image_descriptors(image) for image, uid in images])
 
     print("Training GMM of size", N)
     means, covs, weights = dictionary(words, N)
