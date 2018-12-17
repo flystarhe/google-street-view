@@ -15,6 +15,7 @@ if cache_dir:
 
 
 def dictionary(descriptors, N):
+    # https://github.com/opencv/opencv/blob/master/samples/python/gaussian_mix.py
     em = cv.ml.EM_create()
     em.setClustersNumber(N)
     em.trainEM(descriptors)
