@@ -175,6 +175,8 @@ def eval(targ, pred, bins=10, display=False):
 
 
 def main(work_dir, score_file, train_file, test_file, gmm_number=5, force=True, batch_size=None):
+    os.makedirs(work_dir, exist_ok=True)
+
     score = {}
     with open(score_file) as file:
         for line in file:
@@ -228,4 +230,4 @@ def main(work_dir, score_file, train_file, test_file, gmm_number=5, force=True, 
     print("On train:", eval(train_y, train_y_))
     print("On test:", eval(test_y, test_y_))
 
-    return save_svr(svr, time.strftime("svr.model.%m%d%H%M"))
+    return save_svr(svr, os.path.join(work_dir, time.strftime("svr.model.%m%d%H%M")))
