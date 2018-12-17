@@ -15,8 +15,9 @@ if cache_dir:
 
 
 def dictionary(descriptors, N):
-    em = cv.EM(N)
-    em.train(descriptors)
+    em = cv.ml.EM_create()
+    em.setClustersNumber(N)
+    em.trainEM(descriptors)
     return np.float32(em.getMat("means")), np.float32(em.getMatVector("covs")), np.float32(em.getMat("weights"))[0]
 
 
