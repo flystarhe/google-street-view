@@ -226,8 +226,9 @@ def main(work_dir, score_file, train_file, test_file, gmm_number=5, force=True, 
     train_y_ = svr.predict(train_X)
     test_y_ = svr.predict(test_X)
 
-    print("> eval..")
-    print("On train:", eval(train_y, train_y_))
-    print("On test:", eval(test_y, test_y_))
+    print("> eval on train:")
+    eval(train_y, train_y_, display=True)
+    print("> eval on test:")
+    eval(test_y, test_y_, display=True)
 
     return save_svr(svr, os.path.join(work_dir, time.strftime("svr.model.%m%d%H%M")))
