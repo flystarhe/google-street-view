@@ -205,20 +205,26 @@ def main(work_dir, score_file, train_file, test_file, gmm_number=5, force=True, 
     if batch_size:
         images_train = images_train[:int(batch_size)]
         images_test = images_test[:int(batch_size / 4)]
+    print("train_size: {}, test_size: {}".format(len(images_train), len(images_test)))
 
+    print("> load gmm or generate..")
     if force:
         gmm = generate_gmm(work_dir, gmm_number, images_train)
     else:
         gmm = load_gmm(work_dir)
 
+    print("> load dataset..")
     train_X, train_y = get_fisher_vectors(images_train, score, gmm)
     test_X, test_y = get_fisher_vectors(images_test, score, gmm)
 
+    print("> train svr..")
     svr = train(train_X, train_y)
 
+    print("> predict..")
     train_y_ = svr.predict(train_X)
     test_y_ = svr.predict(test_X)
 
+    print("> eval..")
     print("On train:", eval(train_y, train_y_))
     print("On test:", eval(test_y, test_y_))
 
