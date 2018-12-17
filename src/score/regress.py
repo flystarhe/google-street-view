@@ -171,7 +171,7 @@ def eval(targ, pred, bins=10, display=False):
     return rs
 
 
-def main(work_dir, score_file, train_file, test_file, gmm_number=5, force=True):
+def main(work_dir, score_file, train_file, test_file, gmm_number=5, force=True, batch_size=None):
     score = {}
     with open(score_file) as file:
         for line in file:
@@ -199,8 +199,9 @@ def main(work_dir, score_file, train_file, test_file, gmm_number=5, force=True):
             except:
                 pass
 
-    images_train = images_train[:10000]
-    images_test = images_test[:5000]
+    if batch_size:
+        images_train = images_train[:int(batch_size)]
+        images_test = images_test[:int(batch_size / 4)]
 
     if force:
         gmm = generate_gmm(work_dir, gmm_number, images_train)
