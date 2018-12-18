@@ -1,18 +1,50 @@
 import os
 import time
+import codecs
+import random
 import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import multivariate_normal
 from sklearn.externals import joblib
 from sklearn import svm
-from src.score import split_dataset
 
 cache_dir = "tmps"
 sift = cv.xfeatures2d.SIFT_create()
 
 if cache_dir:
     os.makedirs(cache_dir, exist_ok=True)
+
+
+def split_dataset(file_path, shuffle=True, keep=False):
+    data = []
+    with open(file_path) as file:
+        for line in file:
+            line = line.strip()
+            if line:
+                data.append(line)
+
+    if shuffle:
+        random.shuffle(data)
+
+    pos = int(len(data) * 0.2)
+    print("data size: {}, split pos: {}".format(len(data), pos))
+
+    if keep:
+        root = os.path.dirname(file_path)
+        root = os.path.realpath(root)
+
+        val_file = os.path.join(root, "dataset_val.txt")
+        with codecs.open(val_file, "w", "utf-8") as writer:
+            writer.write("\n".join(data[:pos]))
+
+        train_file = os.path.join(root, "dataset_train.txt")
+        with codecs.open(train_file, "w", "utf-8") as writer:
+            writer.write("\n".join(data[pos:]))
+
+        return val_file, train_file
+    else:
+        return data[:pos], data[pos:]
 
 
 def dictionary(descriptors, N):
