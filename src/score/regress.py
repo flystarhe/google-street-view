@@ -97,6 +97,8 @@ def fisher_vector(samples, means, covs, w):
 
 
 def generate_gmm(gmm_path, N, images):
+    os.makedirs(gmm_path, exist_ok=True)
+
     print("Calculating descriptos. Number of images is", len(images))
     words = np.concatenate([image_descriptors(image) for image, uid in images])
 
@@ -138,8 +140,6 @@ def load_svr(svr_path):
 
 
 def load_gmm(gmm_path):
-    if os.path.isfile(gmm_path):
-        gmm_path = os.path.dirname(gmm_path)
     npy_list = ["means.gmm.npy", "covs.gmm.npy", "weights.gmm.npy"]
     return [np.load(os.path.join(gmm_path, npy_file)) for npy_file in npy_list]
 
@@ -173,6 +173,27 @@ def eval(targ, pred, bins=10, display=False):
         plt.show()
 
     return rs
+
+
+def make_gmm(work_dir, dataset_path, gmm_number, batch_size=None):
+    gmm_path = os.path.join(work_dir, "gmm-{}-{}".format(batch_size, time.strftime("%m%d%H%M")))
+    os.makedirs(gmm_path, exist_ok=True)
+
+    dataset_val, dataset_train = split_dataset(dataset_path, shuffle=True, keep=False)
+
+    images_train = []
+    for line in dataset_train:
+        try:
+            image, uid = line.strip().split()
+            images_train.append([image, uid])
+        except:
+            pass
+
+    if batch_size:
+        images_train = images_train[:int(batch_size)]
+
+    gmm = generate_gmm(gmm_path, gmm_number, images_train)
+    return gmm_path
 
 
 def main_plus(work_dir, score_path, dataset_path, gmm_number=5, force=True, batch_size=None):
@@ -213,10 +234,11 @@ def main_plus(work_dir, score_path, dataset_path, gmm_number=5, force=True, batc
     print("train_size: {}, test_size: {}".format(len(images_train), len(images_val)))
 
     print("> load gmm or generate..")
+    gmm_path = os.path.join(work_dir, "gmm")
     if force:
-        gmm = generate_gmm(work_dir, gmm_number, images_train)
+        gmm = generate_gmm(gmm_path, gmm_number, images_train)
     else:
-        gmm = load_gmm(work_dir)
+        gmm = load_gmm(gmm_path)
 
     print("> load dataset..")
     train_X, train_y = get_fisher_vectors(images_train, score, gmm)
