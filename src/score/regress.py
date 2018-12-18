@@ -261,8 +261,8 @@ def main_plus(work_dir, score_path, dataset_path, gmm_number=5, force=True, batc
             pass
 
     if batch_size:
-        images_train = images_train[:int(batch_size)]
-        images_val = images_val[:int(batch_size / 4)]
+        images_train = images_train[:min(len(images_train), int(batch_size))]
+        images_val = images_val[:min(len(images_val), int(batch_size / 4))]
     print("train_size: {}, test_size: {}".format(len(images_train), len(images_val)))
 
     print("> load gmm or generate..")
@@ -313,30 +313,31 @@ def main(work_dir, score_file, train_file, test_file, gmm_number=5, force=True, 
             except:
                 pass
 
-    images_test = []
+    images_val = []
     with open(test_file) as file:
         for line in file:
             try:
                 image, uid = line.strip().split()
                 if uid in score:
-                    images_test.append([image, uid])
+                    images_val.append([image, uid])
             except:
                 pass
 
     if batch_size:
-        images_train = images_train[:int(batch_size)]
-        images_test = images_test[:int(batch_size / 4)]
-    print("train_size: {}, test_size: {}".format(len(images_train), len(images_test)))
+        images_train = images_train[:min(len(images_train), int(batch_size))]
+        images_val = images_val[:min(len(images_val), int(batch_size / 4))]
+    print("train_size: {}, test_size: {}".format(len(images_train), len(images_val)))
 
     print("> load gmm or generate..")
+    gmm_path = os.path.join(work_dir, "gmm")
     if force:
-        gmm = generate_gmm(work_dir, gmm_number, images_train)
+        gmm = generate_gmm(gmm_path, gmm_number, images_train)
     else:
-        gmm = load_gmm(work_dir)
+        gmm = load_gmm(gmm_path)
 
     print("> load dataset..")
     train_X, train_y = get_fisher_vectors(images_train, score, gmm)
-    test_X, test_y = get_fisher_vectors(images_test, score, gmm)
+    test_X, test_y = get_fisher_vectors(images_val, score, gmm)
 
     print("> train svr..")
     svr = train(train_X, train_y)
