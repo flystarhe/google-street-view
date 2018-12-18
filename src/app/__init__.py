@@ -16,5 +16,5 @@ def inference(image_list):
     # image_list: [image_file_path,..]
     global gmm, svr_list
     X, y = get_fisher_vectors([[image, None] for image in image_list], None, gmm)
-    rs = {name: svr.predict(X) for name, svr in svr_list.items()}
+    rs = {name: svr.predict(X).clip(0, 10) for name, svr in svr_list.items()}
     return rs
