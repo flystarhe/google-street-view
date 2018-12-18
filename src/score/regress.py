@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from scipy.stats import multivariate_normal
 from sklearn.externals import joblib
 from sklearn import svm
+from src.score import split_dataset
 
 cache_dir = "tmps"
 sift = cv.xfeatures2d.SIFT_create()
@@ -172,6 +173,68 @@ def eval(targ, pred, bins=10, display=False):
         plt.show()
 
     return rs
+
+
+def main_plus(work_dir, score_path, dataset_path, gmm_number=5, force=True, batch_size=None):
+    os.makedirs(work_dir, exist_ok=True)
+
+    score = {}
+    with open(score_path) as file:
+        for line in file:
+            try:
+                uid, val = line.strip().split()
+                score[uid] = np.float32(val)
+            except:
+                pass
+
+    dataset_val, dataset_train = split_dataset(dataset_path, shuffle=True, keep=False)
+
+    images_val = []
+    for line in dataset_val:
+        try:
+            image, uid = line.strip().split()
+            if uid in score:
+                images_val.append([image, uid])
+        except:
+            pass
+
+    images_train = []
+    for line in dataset_train:
+        try:
+            image, uid = line.strip().split()
+            if uid in score:
+                images_train.append([image, uid])
+        except:
+            pass
+
+    if batch_size:
+        images_train = images_train[:int(batch_size)]
+        images_val = images_val[:int(batch_size / 4)]
+    print("train_size: {}, test_size: {}".format(len(images_train), len(images_val)))
+
+    print("> load gmm or generate..")
+    if force:
+        gmm = generate_gmm(work_dir, gmm_number, images_train)
+    else:
+        gmm = load_gmm(work_dir)
+
+    print("> load dataset..")
+    train_X, train_y = get_fisher_vectors(images_train, score, gmm)
+    test_X, test_y = get_fisher_vectors(images_val, score, gmm)
+
+    print("> train svr..")
+    svr = train(train_X, train_y)
+
+    print("> predict..")
+    train_y_ = svr.predict(train_X)
+    test_y_ = svr.predict(test_X)
+
+    print("> eval on train:")
+    eval(train_y, train_y_, display=True)
+    print("> eval on test:")
+    eval(test_y, test_y_, display=True)
+
+    return save_svr(svr, os.path.join(work_dir, time.strftime("svr.model.%m%d%H%M")))
 
 
 def main(work_dir, score_file, train_file, test_file, gmm_number=5, force=True, batch_size=None):
