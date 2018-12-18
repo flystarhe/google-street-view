@@ -191,7 +191,8 @@ def main(work_dir, score_file, train_file, test_file, gmm_number=5, force=True, 
         for line in file:
             try:
                 image, uid = line.strip().split()
-                images_train.append([image, uid])
+                if uid in score:
+                    images_train.append([image, uid])
             except:
                 pass
 
@@ -200,7 +201,8 @@ def main(work_dir, score_file, train_file, test_file, gmm_number=5, force=True, 
         for line in file:
             try:
                 image, uid = line.strip().split()
-                images_test.append([image, uid])
+                if uid in score:
+                    images_test.append([image, uid])
             except:
                 pass
 
