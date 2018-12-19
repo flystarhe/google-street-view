@@ -54,9 +54,9 @@ main(["--checkpoints_dir", "/data1/tmps/street_view",
       "--num_worker", "8",
       "--resume_iters", "-1",
       "--start_iters", "1",
-      "--train_iters", "500",
-      "--lr", "0.002",
-      "--lr_update_step", "200",
+      "--train_iters", "100",
+      "--lr", "0.0002",
+      "--lr_update_step", "30",
       "--lr_update_gamma", "0.1"])
 """
 
@@ -71,9 +71,9 @@ def main(args):
     parser.add_argument("--num_worker", type=int, default=8)
     parser.add_argument("--resume_iters", type=int, default=-1)
     parser.add_argument("--start_iters", type=int, default=1)
-    parser.add_argument("--train_iters", type=int, default=500)
-    parser.add_argument("--lr", type=float, default=0.002)
-    parser.add_argument("--lr_update_step", type=int, default=200)
+    parser.add_argument("--train_iters", type=int, default=100)
+    parser.add_argument("--lr", type=float, default=0.0002)
+    parser.add_argument("--lr_update_step", type=int, default=30)
     parser.add_argument("--lr_update_gamma", type=float, default=0.1)
     opt, _ = parser.parse_known_args(args)
     logger = Logger(opt)
@@ -86,10 +86,6 @@ def main(args):
     if opt.resume_iters > -1:
         load_net(model, opt.resume_iters, opt.checkpoints_dir, device)
 
-    if len(opt.gpu_ids) > 1:
-        model = torch.nn.DataParallel(model, device_ids=opt.gpu_ids)
-    print_network(model, "Net")
-
     params_to_update = []
     # default: params_to_update = model.parameters()
     for name, param in model.named_parameters():
@@ -98,6 +94,10 @@ def main(args):
             params_to_update.append(param)
         else:
             param.requires_grad = False
+
+    if len(opt.gpu_ids) > 1:
+        model = torch.nn.DataParallel(model, device_ids=opt.gpu_ids)
+    print_network(model, "Net")
 
     optimizer = torch.optim.Adam(params_to_update, lr=opt.lr, betas=(0.5, 0.999))
     criterion = torch.nn.L1Loss()
