@@ -3,19 +3,26 @@ import json
 import codecs
 
 
-def log_imgs_to_json(log_file, check=True):
+def log_imgs_to_dataset(log_file, years=None, check=True):
     root = os.path.dirname(log_file)
     root = os.path.realpath(root)
 
-    names = ["image_path", "log_id"]
+    if years is None:
+        years = ["2013", "2014", "2015", "2016"]
+    years = set(years)
 
     data = []
-    with open(log_file) as log_file:
-        for l in log_file:
-            if not l.startswith(":"):
+    with open(log_file) as file:
+        for line in file:
+            if not line.startswith(":"):
                 continue
-            l = json.loads(l[1:])
-            data.append([l[i] for i in names])
+            try:
+                vals = json.loads(line[1:])
+                image_date = vals["date"].split("-")[0]
+                if image_date in years:
+                    data.append([vals["image_path"], vals["log_id"]])
+            except:
+                pass
 
     if check:
         for i in data:
@@ -24,7 +31,7 @@ def log_imgs_to_json(log_file, check=True):
     return data
 
 
-def list_to_file(data, file_name, output_dir="."):
+def dataset_to_file(data, file_name, output_dir="."):
     output_dir = os.path.realpath(output_dir)
     os.makedirs(output_dir, exist_ok=True)
 
@@ -38,6 +45,6 @@ def list_to_file(data, file_name, output_dir="."):
 
 if __name__ == "__main__":
     log_file = "/data1/tmps/images_pulse/log.imgs"
-    data = log_imgs_to_json(log_file, check=True)
-    res = list_to_file(data, "dataset.txt", "tmps")
+    data = log_imgs_to_dataset(log_file, check=True)
+    res = dataset_to_file(data, "dataset.txt", ".")
     print(res)

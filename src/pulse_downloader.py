@@ -9,6 +9,8 @@ from src.streetview import request_metadata, request_imagery
 http://pulse.media.mit.edu/data/
 
 Place Pulse 2.0: A Global Map
+
+Date: 2013 ~ 2016
 """
 
 
