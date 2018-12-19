@@ -177,7 +177,8 @@ def load_gmm(gmm_path):
 
 
 def train(X, y):
-    svr = svm.SVR(kernel="linear")
+    # ‘linear’, ‘poly’, ‘rbf’, ‘sigmoid’, ‘precomputed’
+    svr = svm.SVR(kernel="rbf")
     svr.fit(X, y)
     return svr
 
@@ -200,8 +201,9 @@ def eval(targ, pred, bins=10, display=False):
         rs.append([t, p])
 
     if display:
-        loss = [p - t for t, p in rs]
-        plt.hist(loss, bins=bins)
+        plt.hist([p - t for t, p in rs], bins=bins)
+        plt.show()
+        plt.hist(pred, bins=bins)
         plt.show()
 
     return rs
