@@ -86,14 +86,14 @@ def main(args):
     if opt.resume_iters > -1:
         load_net(model, opt.resume_iters, opt.checkpoints_dir, device)
 
+    for name, param in model.named_parameters():
+        param.requires_grad = False
+
     params_to_update = []
     # default: params_to_update = model.parameters()
-    for name, param in model.named_parameters():
-        if name.startswith("fc."):
-            param.requires_grad = True
-            params_to_update.append(param)
-        else:
-            param.requires_grad = False
+    for name, param in list(model.named_parameters())[-11:]:
+        param.requires_grad = True
+        params_to_update.append(param)
 
     if len(opt.gpu_ids) > 1:
         model = torch.nn.DataParallel(model, device_ids=opt.gpu_ids)
