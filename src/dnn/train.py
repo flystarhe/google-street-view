@@ -95,6 +95,7 @@ def main(args):
     scheduler = get_scheduler(optimizer, opt.lr_update_step, opt.lr_update_gamma)
 
     dataset_val, dataset_train = get_dataset(opt.dataset_file, opt.score_file)
+    print("train size: {}, val size: {}".format(len(dataset_train), len(dataset_val)))
     data_loaders = {"train": get_loader(dataset_train, opt.batch_size, True, opt.num_worker),
                     "val": get_loader(dataset_val, opt.batch_size, True, opt.num_worker)}
 
