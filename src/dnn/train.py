@@ -90,7 +90,16 @@ def main(args):
         model = torch.nn.DataParallel(model, device_ids=opt.gpu_ids)
     print_network(model, "Net")
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=opt.lr, betas=(0.5, 0.999))
+    params_to_update = []
+    # default: params_to_update = model.parameters()
+    for name, param in model.named_parameters():
+        if name.startswith("fc."):
+            param.requires_grad = True
+            params_to_update.append(param)
+        else:
+            param.requires_grad = False
+
+    optimizer = torch.optim.Adam(params_to_update, lr=opt.lr, betas=(0.5, 0.999))
     criterion = torch.nn.L1Loss()
     scheduler = get_scheduler(optimizer, opt.lr_update_step, opt.lr_update_gamma)
 
