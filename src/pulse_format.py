@@ -37,9 +37,8 @@ def dataset_to_file(data, file_name, output_dir="."):
 
     file_path = os.path.join(output_dir, file_name)
     with codecs.open(file_path, "w", "utf-8") as writer:
-        for line in data:
-            writer.write(" ".join(line))
-            writer.write("\n")
+        data = [" ".join(vals) for vals in data]
+        writer.write("\n".join(data))
     return file_path
 
 
