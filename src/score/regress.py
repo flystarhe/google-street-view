@@ -63,7 +63,7 @@ def image_descriptors(image, keep=True):
             return np.load(npy_file)
 
     image = cv.imread(image, 0)
-    image = cv.resize(image, (256, 256))
+    # image = cv.resize(image, (256, 256))
     _, descriptors = sift.detectAndCompute(image, None)
 
     if cache_dir and keep:
