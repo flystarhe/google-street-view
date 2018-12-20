@@ -32,6 +32,7 @@ trans = transforms.Compose([transforms.Resize(256), transforms.CenterCrop(256), 
 
 
 def inference(image_path, device):
+    # labels = ["beautiful", "boring", "depressing", "lively", "safety", "wealthy"]
     # image_path = "/data1/tmps/images_pulse/-x46IJ2AQTU4FWu9WiCRfw,1214011640.jpg"
     image = Image.open(image_path)
     if image.mode != "RGB":
