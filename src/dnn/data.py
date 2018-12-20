@@ -36,12 +36,18 @@ def make_score_file(score_path, labels=None):
 def get_transform(mode="test"):
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     if mode == "train":
-        return transforms.Compose(
-            [transforms.Resize(256), transforms.RandomCrop(256), transforms.RandomHorizontalFlip(),
-             transforms.ToTensor(), normalize])
+        return transforms.Compose([
+            transforms.Resize(256),
+            transforms.RandomCrop(256),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            normalize])
     else:
-        return transforms.Compose(
-            [transforms.Resize(256), transforms.CenterCrop(256), transforms.ToTensor(), normalize])
+        return transforms.Compose([
+            transforms.Resize(256),
+            transforms.CenterCrop(256),
+            transforms.ToTensor(),
+            normalize])
 
 
 def split_dataset(file_path, shuffle=True, keep=False):
