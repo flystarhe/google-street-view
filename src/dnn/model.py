@@ -17,6 +17,7 @@ class Net(nn.Module):
         self.layer2 = resnet.layer2
         self.layer3 = resnet.layer3
 
+        self.drop = nn.Dropout2d(p=0.5)
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(1024, num_classes)
         self.init_weights()
@@ -31,6 +32,7 @@ class Net(nn.Module):
         out = self.layer2(out)
         out = self.layer3(out)
 
+        out = self.drop(out)
         out = self.avgpool(out)
         out = out.view(out.size(0), -1)
         out = self.fc(out)
