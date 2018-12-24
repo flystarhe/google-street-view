@@ -126,8 +126,8 @@ def main(args):
 
                 optimizer.zero_grad()
                 with torch.set_grad_enabled(phase == "train"):
-                    # outputs = torch.sigmoid(model(inputs))
-                    outputs = model(inputs)
+                    # outputs = model(inputs)
+                    outputs = torch.sigmoid(model(inputs))
                     loss = criterion(outputs, targets)
                     if phase == "train":
                         loss.backward()
