@@ -8,7 +8,7 @@ from src.dnn import Logger
 from src.dnn import str2list, str2bool
 from src.dnn import print_network, print_options
 from src.dnn.data import get_dataset
-from src.dnn.model import Net
+from src.dnn.model2 import Net
 
 
 def get_scheduler(optimizer, lr_update_step, lr_update_gamma):
