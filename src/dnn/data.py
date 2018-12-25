@@ -37,10 +37,10 @@ def get_transform(mode="test", new_size=256):
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     if mode == "train":
         return transforms.Compose([
-            transforms.Resize(new_size),
             transforms.RandomRotation(15),
-            transforms.RandomResizedCrop(new_size, scale=(0.9, 1.1), ratio=(0.9, 1.1)),
             transforms.RandomHorizontalFlip(),
+            transforms.Resize(new_size),
+            transforms.RandomResizedCrop(new_size, scale=(0.8, 1.2), ratio=(0.8, 1.2)),
             transforms.ToTensor(),
             normalize])
     else:
