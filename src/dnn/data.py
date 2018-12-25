@@ -84,10 +84,10 @@ def split_dataset(file_path, shuffle=True, keep=False, seed=None):
         return data[:pos], data[pos:]
 
 
-def get_dataset(dataset_file, score_file, new_size=256):
-    data_val, data_train = split_dataset(dataset_file, shuffle=True, keep=False)
-    train = Dataset(data_train, score_file, None, get_transform("train", new_size))
-    val = Dataset(data_val, score_file, None, get_transform("test", new_size))
+def get_dataset(dataset_file, score_file, size=256, seed=None):
+    data_val, data_train = split_dataset(dataset_file, shuffle=True, keep=False, seed=seed)
+    train = Dataset(data_train, score_file, None, get_transform("train", size))
+    val = Dataset(data_val, score_file, None, get_transform("test", size))
     return val, train
 
 
