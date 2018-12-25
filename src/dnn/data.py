@@ -50,7 +50,7 @@ def get_transform(mode="test", new_size=256):
             normalize])
 
 
-def split_dataset(file_path, shuffle=True, keep=False):
+def split_dataset(file_path, shuffle=True, keep=False, seed=None):
     data = []
     with open(file_path) as file:
         for line in file:
@@ -59,10 +59,13 @@ def split_dataset(file_path, shuffle=True, keep=False):
                 data.append(line)
 
     if shuffle:
+        if seed is None:
+            seed = random.randint(1, 1000)
+        random.seed(seed)
         random.shuffle(data)
 
     pos = int(len(data) * 0.2)
-    print("data size: {}, split pos: {}".format(len(data), pos))
+    print("seed: {}, data size: {}, split pos: {}".format(seed, len(data), pos))
 
     if keep:
         root = os.path.dirname(file_path)
