@@ -38,7 +38,8 @@ def get_transform(mode="test", new_size=256):
     if mode == "train":
         return transforms.Compose([
             transforms.Resize(new_size),
-            transforms.RandomCrop(new_size),
+            transforms.RandomRotation(15),
+            transforms.RandomResizedCrop(new_size, scale=(0.9, 1.1), ratio=(0.9, 1.1)),
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             normalize])
