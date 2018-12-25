@@ -50,6 +50,7 @@ main(["--checkpoints_dir", "/data1/tmps/street_view",
       "--dataset_file", "src/dataset.txt",
       "--score_file", "src/score/score_plus.txt",
       "--gpu_ids", "0,1",
+      "--input_size", "256",
       "--batch_size", "16",
       "--num_worker", "8",
       "--resume_iters", "-1",
@@ -67,6 +68,7 @@ def main(args):
     parser.add_argument("--dataset_file", type=str, default="src/dataset.txt")
     parser.add_argument("--score_file", type=str, default="src/score/score_plus.txt")
     parser.add_argument("--gpu_ids", type=str2list, default="0,")
+    parser.add_argument("--input_size", type=int, default=256)
     parser.add_argument("--batch_size", type=int, default=16)
     parser.add_argument("--num_worker", type=int, default=8)
     parser.add_argument("--resume_iters", type=int, default=-1)
@@ -103,7 +105,7 @@ def main(args):
     criterion = torch.nn.L1Loss()
     scheduler = get_scheduler(optimizer, opt.lr_update_step, opt.lr_update_gamma)
 
-    dataset_val, dataset_train = get_dataset(opt.dataset_file, opt.score_file)
+    dataset_val, dataset_train = get_dataset(opt.dataset_file, opt.score_file, opt.input_size)
     print("train size: {}, val size: {}".format(len(dataset_train), len(dataset_val)))
     data_loaders = {"train": get_loader(dataset_train, opt.batch_size, True, opt.num_worker),
                     "val": get_loader(dataset_val, opt.batch_size, True, opt.num_worker)}

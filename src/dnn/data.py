@@ -33,19 +33,19 @@ def make_score_file(score_path, labels=None):
     return file_path
 
 
-def get_transform(mode="test"):
+def get_transform(mode="test", new_size=256):
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     if mode == "train":
         return transforms.Compose([
-            transforms.Resize(256),
-            transforms.RandomCrop(256),
+            transforms.Resize(new_size),
+            transforms.RandomCrop(new_size),
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             normalize])
     else:
         return transforms.Compose([
-            transforms.Resize(256),
-            transforms.CenterCrop(256),
+            transforms.Resize(new_size),
+            transforms.CenterCrop(new_size),
             transforms.ToTensor(),
             normalize])
 
@@ -81,10 +81,10 @@ def split_dataset(file_path, shuffle=True, keep=False):
         return data[:pos], data[pos:]
 
 
-def get_dataset(dataset_file, score_file):
+def get_dataset(dataset_file, score_file, new_size=256):
     data_val, data_train = split_dataset(dataset_file, shuffle=True, keep=False)
-    train = Dataset(data_train, score_file, None, get_transform("train"))
-    val = Dataset(data_val, score_file, None, get_transform("test"))
+    train = Dataset(data_train, score_file, None, get_transform("train", new_size))
+    val = Dataset(data_val, score_file, None, get_transform("test", new_size))
     return val, train
 
 
