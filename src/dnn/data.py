@@ -40,7 +40,7 @@ def get_transform(mode="test", new_size=256):
             transforms.RandomRotation(15),
             transforms.RandomHorizontalFlip(),
             transforms.Resize(new_size),
-            transforms.RandomResizedCrop(new_size, scale=(0.8, 1.2), ratio=(0.8, 1.2)),
+            transforms.RandomResizedCrop(new_size, scale=(0.8, 1.2), ratio=(1.0, 1.0)),
             transforms.ToTensor(),
             normalize])
     else:
